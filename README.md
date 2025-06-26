@@ -1,5 +1,10 @@
 # conflict-parser
 
+[![PyPI version](https://badge.fury.io/py/conflict-parser.svg)](https://badge.fury.io/py/conflict-parser)
+[![Python versions](https://img.shields.io/pypi/pyversions/conflict-parser.svg)](https://pypi.org/project/conflict-parser/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Downloads](https://pepy.tech/badge/conflict-parser)](https://pepy.tech/project/conflict-parser)
+
 > **Parse, analyse, and resolve Git merge-conflict files in pure Python**
 
 `conflict-parser` turns any file that contains Git conflict markers

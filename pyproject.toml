@@ -4,21 +4,33 @@ build-backend = "hatchling.build"
 
 [project]
 name = "conflict_parser"
-version = "0.0.1"
+version = "0.0.2"
 description = "Object representation of a Git merge conflict."
 requires-python = ">=3.10"
 readme = "README.md"
 license = "MIT"
+authors = [
+    {name = "Jinu Jang"}
+]
+keywords = ["git", "merge", "conflict", "parser", "version-control", "diff"]
 classifiers = [
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Version Control :: Git",
+    "Topic :: Text Processing :: Filters",
 ]
-dependencies = [
-]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/jinu-jang/conflict-parser"
+Repository = "https://github.com/jinu-jang/conflict-parser.git"
+Issues = "https://github.com/jinu-jang/conflict-parser/issues"
 
 [project.optional-dependencies]
 dev = [
