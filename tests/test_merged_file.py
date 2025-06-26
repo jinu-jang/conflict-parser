@@ -141,3 +141,257 @@ def test_resolve_conflicts_diff3():
     assert mf.resolve_conflicts() == ours_expected
     assert mf.resolve_conflicts("take_ours") == ours_expected
     assert mf.resolve_conflicts("take_theirs") == theirs_expected
+
+
+# --------------------------------------------------------------------------- #
+# 3. Edge-cases requested by the user
+# --------------------------------------------------------------------------- #
+
+
+# 3.1. Conflict starts on line 1 (merge)
+def test_merge_conflict_at_start():
+    raw = _clean(
+        """
+        <<<<<<< HEAD
+        ours
+        =======
+        theirs
+        >>>>>>> branch
+        after
+        """
+    )
+    meta = MergeMetadata(conflict_style="merge")
+    mf = MergedFile.from_content("demo", raw, meta)
+
+    ours_expected = _clean(
+        """
+        ours
+        after
+        """
+    )
+    theirs_expected = _clean(
+        """
+        theirs
+        after
+        """
+    )
+
+    assert mf.resolve_conflicts("take_ours") == ours_expected
+    assert mf.resolve_conflicts("take_theirs") == theirs_expected
+
+
+# 3.2. Conflict has only an empty line afterwards (merge)
+def test_merge_conflict_only_empty_line_after():
+    raw = _clean(
+        """
+        line
+        <<<<<<< HEAD
+        ours
+        =======
+        theirs
+        >>>>>>> branch
+        """
+    )
+    meta = MergeMetadata(conflict_style="merge")
+    mf = MergedFile.from_content("demo", raw, meta)
+
+    ours_expected = _clean(
+        """
+        line
+        ours
+        """
+    )
+    theirs_expected = _clean(
+        """
+        line
+        theirs
+        """
+    )
+    assert mf.resolve_conflicts("take_ours") == ours_expected
+    assert mf.resolve_conflicts("take_theirs") == theirs_expected
+
+
+# 3.3. Conflict ends directly at EOF (merge)
+@pytest.mark.skip("Git merge algorithm always adds an EOL")
+def test_merge_conflict_at_eof():
+    raw = _clean(
+        """line
+        <<<<<<< HEAD
+        ours
+        =======
+        theirs
+        >>>>>>> branch"""
+    )
+    meta = MergeMetadata(conflict_style="merge")
+    mf = MergedFile.from_content("demo", raw, meta)
+
+    assert mf.resolve_conflicts("take_ours") == "line\nours"
+    assert mf.resolve_conflicts("take_theirs") == "line\ntheirs"
+
+
+# 3.4. Merge style – ours (A) empty
+def test_merge_ours_empty():
+    raw = _clean(
+        """
+        line
+        <<<<<<< HEAD
+        =======
+        theirs
+        >>>>>>> branch
+        after
+        """
+    )
+    meta = MergeMetadata(conflict_style="merge")
+    mf = MergedFile.from_content("demo", raw, meta)
+
+    ours_expected = _clean(
+        """
+        line
+        after
+        """
+    )
+    theirs_expected = _clean(
+        """
+        line
+        theirs
+        after
+        """
+    )
+    assert mf.resolve_conflicts("take_ours") == ours_expected
+    assert mf.resolve_conflicts("take_theirs") == theirs_expected
+
+
+# 3.5. Merge style – theirs (B) empty
+def test_merge_theirs_empty():
+    raw = _clean(
+        """
+        line
+        <<<<<<< HEAD
+        ours
+        =======
+        >>>>>>> branch
+        after
+        """
+    )
+    meta = MergeMetadata(conflict_style="merge")
+    mf = MergedFile.from_content("demo", raw, meta)
+
+    ours_expected = _clean(
+        """
+        line
+        ours
+        after
+        """
+    )
+    theirs_expected = _clean(
+        """
+        line
+        after
+        """
+    )
+    assert mf.resolve_conflicts("take_ours") == ours_expected
+    assert mf.resolve_conflicts("take_theirs") == theirs_expected
+
+
+# 3.6. Diff3 style – ours (A) empty
+def test_diff3_ours_empty():
+    raw = _clean(
+        """
+        line
+        <<<<<<< HEAD
+        ||||||| base
+        base
+        =======
+        theirs
+        >>>>>>> branch
+        after
+        """
+    )
+    meta = MergeMetadata(conflict_style="diff3")
+    mf = MergedFile.from_content("demo", raw, meta)
+
+    ours_expected = _clean(
+        """
+        line
+        after
+        """
+    )
+    theirs_expected = _clean(
+        """
+        line
+        theirs
+        after
+        """
+    )
+    assert mf.resolve_conflicts() == ours_expected  # default take_ours
+    assert mf.resolve_conflicts("take_ours") == ours_expected
+    assert mf.resolve_conflicts("take_theirs") == theirs_expected
+
+
+# 3.7. Diff3 style – base empty
+def test_diff3_base_empty():
+    raw = _clean(
+        """
+        line
+        <<<<<<< HEAD
+        ours
+        ||||||| base
+        =======
+        theirs
+        >>>>>>> branch
+        after
+        """
+    )
+    meta = MergeMetadata(conflict_style="diff3")
+    mf = MergedFile.from_content("demo", raw, meta)
+
+    ours_expected = _clean(
+        """
+        line
+        ours
+        after
+        """
+    )
+    theirs_expected = _clean(
+        """
+        line
+        theirs
+        after
+        """
+    )
+    assert mf.resolve_conflicts("take_ours") == ours_expected
+    assert mf.resolve_conflicts("take_theirs") == theirs_expected
+
+
+# 3.8. Diff3 style – theirs (B) empty
+def test_diff3_theirs_empty():
+    raw = _clean(
+        """
+        line
+        <<<<<<< HEAD
+        ours
+        ||||||| base
+        base
+        =======
+        >>>>>>> branch
+        after
+        """
+    )
+    meta = MergeMetadata(conflict_style="diff3")
+    mf = MergedFile.from_content("demo", raw, meta)
+
+    ours_expected = _clean(
+        """
+        line
+        ours
+        after
+        """
+    )
+    theirs_expected = _clean(
+        """
+        line
+        after
+        """
+    )
+    assert mf.resolve_conflicts("take_ours") == ours_expected
+    assert mf.resolve_conflicts("take_theirs") == theirs_expected

@@ -37,7 +37,9 @@ def parse_content(
     def flush_context() -> None:
         nonlocal ctx_lines, ctx_start
         if ctx_start is None:
-            raise ValueError("No context to flush; ctx_start is None.")
+            # No context to flush
+            # Expected only when file starts or ends with a conflict
+            return
 
         if ctx_lines:
             segments.append(
